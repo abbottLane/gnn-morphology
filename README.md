@@ -50,9 +50,14 @@ python examples/04_graph_classification.py
 ```
 
 Each script prints its own results and a paragraph explaining what to
-conclude. Runs in under two minutes on CPU; no GPU, no graph libraries —
-message passing is implemented from scratch in
-[`src/morphgnn/layers.py`](src/morphgnn/layers.py) so you can read it.
+conclude. CPU only, no GPU and no graph libraries — message passing is
+implemented from scratch in [`src/morphgnn/layers.py`](src/morphgnn/layers.py)
+so you can read it.
+
+Typical CPU runtime (the models are deliberately small): `01` ~2 min,
+`02` ~2 min, `04` ~1 min, `03` ~12 min because it trains per-slot heads for
+40 epochs — cut `range(40)` in `examples/03_paradigm_completion.py` to
+`range(10)` for a rough-and-ready run.
 
 ## What the examples actually find
 
