@@ -1,5 +1,2 @@
-networkx
-node2vec
-pytorch
-spacy
-datasets
+torch>=2.0
+pytest>=7.0
