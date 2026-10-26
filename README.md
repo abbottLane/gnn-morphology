@@ -54,22 +54,46 @@ conclude. Runs in under two minutes on CPU; no GPU, no graph libraries —
 message passing is implemented from scratch in
 [`src/morphgnn/layers.py`](src/morphgnn/layers.py) so you can read it.
 
+## What the examples actually find
+
+Measured on this repository's default seeds (rerun them yourself; the
+scripts print these tables):
+
+| Example | Setting | Result |
+|---|---|---|
+| 01 boundaries | GNN vs window MLP, unseen roots | F1 **0.892** vs 0.868 — a real but modest gain |
+| 02 harmony | chain vs chain+harmony edge vs window MLP | **1.000** vs 0.626 vs 0.880 — the naive chain *loses* to the non-graph baseline; the linguistic edge is everything |
+| 03 paradigms | systematic block hidden, unseen lexemes | slot acc 0.728 (GNN) vs 0.745 (copy) — a tie; cell acc **0.308** vs 0.000 (copying one form cannot fill a systematic gap at all) |
+| 04 POS | GNN vs bag MLP | 0.975 vs 0.930 — both near ceiling; structure is not the constraint |
+
+Three of these four results are not "graphs win". They are the more useful
+lesson: a graph helps only when the task is about *arrangement*, the
+*baseline you choose* determines what you can see, and the *right edges*
+matter more than having a graph at all. Example 02 in particular is a
+warning about testing the wrong thing — our first version of it found a
+near-perfect window model (0.98) purely because a dialect's own affixes
+leaked the answer.
+
 ## What you will actually learn
 
 1. **Message passing from first principles.** `layers.py` implements
    `h_i <- phi(h_i, mean_j psi(h_i, h_j))` with plain `index_add_`. A GCN is
    the special case where messages ignore the receiver; you can see the
    reduction rather than take it on faith.
-2. **Graphs as inductive bias.** Example `01` shows a chain GNN beating a
-   window model on unseen roots with identical features and capacity:
-   structure is worth something specific, not merely "better".
-3. **Edges encode linguistics.** Example `02` isolates the harmony edge —
-   the accurate dependency — and shows the difference it makes at distance.
+2. **Graphs as inductive bias, not magic.** Example `01` measures a real
+   but modest gain (0.892 vs 0.868) from structure alone; example `02`
+   shows a naive chain graph *losing* to a window MLP (0.626 vs 0.880) until
+   the linguistically correct edge is added (1.000).
+3. **Metric choice decides the story.** Example `03`: copying one attested
+   form ties the GNN on per-slot accuracy yet scores *exactly zero* on
+   whole-cell accuracy, because it is structurally incapable of filling a
+   systematic gap. Pick the metric that matches the capability you claim.
 4. **When graphs hurt.** Example `04` gives you the control condition.
    A GNN is degree-invariant; if your task is a bag-of-parts question,
-   pooling without messages does just as well and trains faster.
+   pooling without messages does just as well (0.930) and trains faster.
 5. **Evaluation discipline.** Every example splits by *root*, not by word,
-   so memorisation cannot masquerade as generalisation.
+   so memorisation cannot masquerade as generalisation — and example `03`
+   shows why the baseline and the metric deserve as much care as the model.
 
 ## Suggested exercises
 
